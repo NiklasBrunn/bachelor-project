@@ -21,7 +21,11 @@ function highest_interaction_matching(sel_group::Int, sel_communication::String,
     for i in 1:n_cells_per_group
         start_row = ((sel_group - 1)*n_cells*n_cells_per_group)+(i-1)*n_cells+1
         end_row = start_row + n_cells - 1
-        highest_interaction_row = start_row + argmax(interaction_df[start_row : end_row, :GeometricMean]) - 1
+        vals = interaction_df[start_row : end_row, :GeometricMean]
+        max_val = findmax(vals)[1]
+        max_val_indices = findall(x -> x == max_val, vals)
+        idx = rand(max_val_indices)
+        highest_interaction_row = start_row + idx - 1
         highest_interaction_pairs[i] = interaction_df[highest_interaction_row, :Sender]
     end
     highest_interaction_pairs = Int.(highest_interaction_pairs)

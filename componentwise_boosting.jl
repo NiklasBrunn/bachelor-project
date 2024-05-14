@@ -68,7 +68,10 @@ function compL2Boost!(β::AbstractVector{<:AbstractFloat}, X::AbstractMatrix{<:A
         unibeta, denom = calcunibeta(X, res, n, p) 
 
         #determine the optimal index of the univariate estimators resulting in the currently optimal fit:
-        optindex = findmax(collect(unibeta[j]^2 * denom[j] for j in 1:p))[2]
+        vals = collect(unibeta[j]^2 * denom[j] for j in 1:p)
+        max_val = findmax(vals)[1]
+        max_val_indices = findall(x -> x == max_val, vals)
+        optindex = rand(max_val_indices)
 
         #update β by adding a re-scaled version of the selected OLLS-estimator, by a scalar value ϵ ∈ (0,1):
         β[optindex] += unibeta[optindex] * ϵ 
@@ -88,8 +91,8 @@ Compute the OLLS-estimator for each component of the design matrix for each comm
 - `beta_vectors::Dict{Any, Any}`: A dictionary containing the OLLS-estimators for each component of the design matrix for each communication.
 """
 function get_beta_vectors(regression_data::Dict{Any, Any})
-    ϵ = 0.01 #learning rate (step width) for the boosting
-    M = 100 #number of boosting steps
+    ϵ = 0.2 #learning rate (step width) for the boosting
+    M = 15 #number of boosting steps
 
     beta_vectors = Dict()
     for sel_communication in keys(regression_data)
